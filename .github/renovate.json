@@ -1,0 +1,11 @@
+{
+    "extends": ["config:base"],
+    "branchPrefix": "renovate/",
+    "onboarding": false,
+    "repositories": ["IBM/ai-demos"],
+    "baseBranches": ["main"],
+    "rebaseWhen": "conflicted",
+    "labels": ["dependencies", "renovate"],
+    "automerge": false,
+    "reviewers": ["varad-ahirwadkar", "manju956"]
+}
