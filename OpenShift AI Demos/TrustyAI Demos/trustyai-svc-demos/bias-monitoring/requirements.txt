@@ -1,0 +1,9 @@
+libprotobuf==4.25.8 ; platform_machine == "ppc64le"
+numpy==2.3.1
+packaging==25.0
+pandas==2.2.3
+requests==2.32.5
+onnxscript==0.5.6
+openblas==0.3.29 ; platform_machine == "ppc64le"
+scikit-learn==1.6.1
+torch==2.7.1

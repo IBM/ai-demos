@@ -1,0 +1,166 @@
+{
+  "demo-loan-nn-onnx-beta": {
+    "metrics": {
+      "scheduledMetadata": {
+        "metricCounts": {}
+      }
+    },
+    "data": {
+      "inputSchema": {
+        "items": {
+          "customer_data_input-6": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-6",
+            "columnIndex": 6
+          },
+          "customer_data_input-5": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-5",
+            "columnIndex": 5
+          },
+          "customer_data_input-4": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-4",
+            "columnIndex": 4
+          },
+          "customer_data_input-3": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-3",
+            "columnIndex": 3
+          },
+          "customer_data_input-2": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-2",
+            "columnIndex": 2
+          },
+          "customer_data_input-1": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-1",
+            "columnIndex": 1
+          },
+          "customer_data_input-0": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-0",
+            "columnIndex": 0
+          },
+          "customer_data_input-10": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-10",
+            "columnIndex": 10
+          },
+          "customer_data_input-9": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-9",
+            "columnIndex": 9
+          },
+          "customer_data_input-8": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-8",
+            "columnIndex": 8
+          },
+          "customer_data_input-7": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-7",
+            "columnIndex": 7
+          }
+        },
+        "nameMapping": {}
+      },
+      "outputSchema": {
+        "items": {
+          "predict": {
+            "type": "INT64",
+            "name": "predict",
+            "columnIndex": 11
+          }
+        },
+        "nameMapping": {}
+      },
+      "inputTensorName": "input",
+      "outputTensorName": "output",
+      "observations": 2368
+    }
+  },
+  "demo-loan-nn-onnx-alpha": {
+    "metrics": {
+      "scheduledMetadata": {
+        "metricCounts": {}
+      }
+    },
+    "data": {
+      "inputSchema": {
+        "items": {
+          "customer_data_input-6": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-6",
+            "columnIndex": 6
+          },
+          "customer_data_input-5": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-5",
+            "columnIndex": 5
+          },
+          "customer_data_input-4": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-4",
+            "columnIndex": 4
+          },
+          "customer_data_input-3": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-3",
+            "columnIndex": 3
+          },
+          "customer_data_input-2": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-2",
+            "columnIndex": 2
+          },
+          "customer_data_input-1": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-1",
+            "columnIndex": 1
+          },
+          "customer_data_input-0": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-0",
+            "columnIndex": 0
+          },
+          "customer_data_input-10": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-10",
+            "columnIndex": 10
+          },
+          "customer_data_input-9": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-9",
+            "columnIndex": 9
+          },
+          "customer_data_input-8": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-8",
+            "columnIndex": 8
+          },
+          "customer_data_input-7": {
+            "type": "DOUBLE",
+            "name": "customer_data_input-7",
+            "columnIndex": 7
+          }
+        },
+        "nameMapping": {}
+      },
+      "outputSchema": {
+        "items": {
+          "predict": {
+            "type": "INT64",
+            "name": "predict",
+            "columnIndex": 11
+          }
+        },
+        "nameMapping": {}
+      },
+      "inputTensorName": "input",
+      "outputTensorName": "output",
+      "observations": 2368
+    }
+  }
+}

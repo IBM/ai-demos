@@ -1,0 +1,38 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    opendatahub.io/accelerator-name: ""
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/serving-runtime-scope: global
+    opendatahub.io/template-display-name: Triton Server ServingRuntime for KServe(ppc64le)
+    opendatahub.io/template-name: triton-ppc64le-runtime
+    openshift.io/display-name: demo-loan-nn-onnx
+  labels:
+    name: triton-ppc64le-runtime
+    opendatahub.io/dashboard: "true"
+  name: demo-loan-nn-onnx
+  namespace: trustyai-demo
+spec:
+  containers:
+  - command:
+    - tritonserver
+    - --model-repository=/mnt/models
+    image: quay.io/powercloud/tritonserver:latest
+    name: kserve-container
+    ports:
+    - containerPort: 8000
+      protocol: TCP
+    volumeMounts:
+    - mountPath: /dev/shm
+      name: shm
+  httpDataEndpoint: port:8000
+  supportedModelFormats:
+  - name: python
+  - autoSelect: true
+    name: onnx
+  volumes:
+  - emptyDir:
+      medium: Memory
+      sizeLimit: 2Gi
+    name: shm
