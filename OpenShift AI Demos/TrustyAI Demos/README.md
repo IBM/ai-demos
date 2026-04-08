@@ -47,8 +47,9 @@ Demonstrates conversational guardrails using NVIDIA NeMo Guardrails, including t
 Demo - [NeMo-Guardrails Demo](nemo-guardrails-demo/)
 
 ## Machine Learning Models Demos
-#### 1. Data Drift Demo [Coming Soon]  
+#### 1. Data Drift Demo  
 How to detect if the production data your models are receiving matches the data they were trained on.  
+Demo - [Data Drift Demo](trustyai-svc-demos/data-drift/)
 
 #### 2. Bias Monitoring Demo [Coming Soon]
 How to use TrustyAI to examine your deployed models for unfair biases.  

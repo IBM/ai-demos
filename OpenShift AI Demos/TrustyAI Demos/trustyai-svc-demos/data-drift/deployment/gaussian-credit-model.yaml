@@ -1,0 +1,68 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    opendatahub.io/accelerator-name: ""
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/hardware-profile-name: small-serving-1bmle
+    opendatahub.io/serving-runtime-scope: global
+    opendatahub.io/template-display-name: Triton Server ServingRuntime for KServe(ppc64le)
+    opendatahub.io/template-name: triton-ppc64le-runtime
+    openshift.io/display-name: gaussian-credit-model
+  labels:
+    name: triton-ppc64le-runtime
+    opendatahub.io/dashboard: "true"
+  name: gaussian-credit-model
+spec:
+  containers:
+  - command:
+    - tritonserver
+    - --model-repository=/mnt/models
+    image: quay.io/powercloud/tritonserver:latest
+    name: kserve-container
+    ports:
+    - containerPort: 8000
+      protocol: TCP
+    volumeMounts:
+    - mountPath: /dev/shm
+      name: shm
+  supportedModelFormats:
+  - name: python
+  - autoSelect: true
+    name: onnx
+  volumes:
+  - emptyDir:
+      medium: Memory
+      sizeLimit: 2Gi
+    name: shm
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: gaussian-credit-model
+    serving.kserve.io/deploymentMode: RawDeployment
+  labels:
+    opendatahub.io/dashboard: "true"
+    networking.kserve.io/visibility: exposed
+  name: gaussian-credit-model
+spec:
+  predictor:
+    automountServiceAccountToken: false
+    maxReplicas: 1
+    minReplicas: 1
+    model:
+      modelFormat:
+        name: onnx
+      name: ""
+      resources:
+        limits:
+          cpu: "8"
+          memory: 10Gi
+        requests:
+          cpu: "4"
+          memory: 8Gi
+      runtime: gaussian-credit-model
+      storage:
+        key: s3-creds
+        path: models/data-drift-model
