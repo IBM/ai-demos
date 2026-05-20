@@ -1,13 +1,40 @@
-# ai-demos
+# AI Demos
 
-The repository covers python based AI example applications like iris and fraud detection which use traditional machine learning models with ONNX runtime.
-The example applications can be containerized and their respective models can be trained by following the steps covered in [README.md](fraud_detection/README.md)
+A collection of AI/ML demonstrations and examples for various platforms and use cases.
 
+## Repository Structure
 
-The repository also includes TrustyAI demonstration examples.
+```
+ai-demos/
+├── containerized-demos/           
+│   └── model-serving/             
+└── openshift-ai-demos/            
+   ├── model-serving/              
+   └── trustyai/                   
+```
+
+## Available Demos
+
+### Containerized Demos
+Local containerized demonstrations.
+
+[→ Explore Containerized Demos](containerized-demos/)
+
+---
+
+### Red Hat OpenShift AI Demos
+Demonstrations for Red Hat OpenShift AI (RHOAI).
+
+[→ Explore OpenShift AI Demos](openshift-ai-demos/)
+
+---
+
+## Getting Started
+
+Each demo directory contains its own README with detailed setup instructions. Choose a demo category above and follow the specific documentation.
 
 ## Contributing
 
 This project requires contributors to agree to the Developer Certificate of Origin.
 
-Please refer DCO.md file for more information
+Please refer to [DCO.txt](DCO.txt) for more information.
