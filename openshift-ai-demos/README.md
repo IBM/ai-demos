@@ -12,8 +12,8 @@ Demonstrations for Red Hat OpenShift AI (RHOAI) showcasing model serving, LLM ev
 ### 2. Clone and Configure OpenShift AI
 ```bash
 # Clone the repository
-git clone https://github.com/varad-ahirwadkar/ai-demos.git
-cd openshift-ai-demos/
+git clone https://github.com/IBM/ai-demos.git
+cd ai-demos/openshift-ai-demos/
 
 # Create DSCInitialization
 oc create -f shared/dsci.yaml
