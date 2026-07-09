@@ -1,0 +1,47 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    modelFormat: vLLM
+    opendatahub.io/connection-path: models/bge-m3
+    opendatahub.io/model-type: generative
+    openshift.io/display-name: bge-m3
+    security.opendatahub.io/enable-auth: "false"
+    serving.kserve.io/deploymentMode: Standard
+  labels:
+    networking.kserve.io/visibility: exposed
+    opendatahub.io/dashboard: "true"
+  name: bge-m3
+spec:
+  predictor:
+    deploymentStrategy:
+      type: RollingUpdate
+    maxReplicas: 1
+    minReplicas: 1
+    model:
+      args:
+      - --gpu-memory-utilization=0.4
+      - --served-model-name=bge-m3
+      - --max-model-len=8192
+      - --max-num-seqs=16
+      - --dtype=bfloat16
+      - --disable-custom-all-reduce
+      - --trust-remote-code
+      env:
+      - name: VLLM_ENGINE_ITERATION_TIMEOUT_S
+        value: "1200"
+      - name: VLLM_CPU_KVCACHE_SPACE
+        value: "16"
+      modelFormat:
+        name: vLLM
+      name: ""
+      resources:
+        limits:
+          cpu: "8"
+          memory: 16Gi
+        requests:
+          cpu: "8"
+          memory: 16Gi
+      runtime: vllm-cpu-runtime
+      storageUri: pvc://bge-m3-pvc/bge-m3
+    timeout: 1200

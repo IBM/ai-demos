@@ -32,7 +32,10 @@ NAME          READY   REASON
 default-dsc   True   
 ```
 
-### 3. S3 Storage
+### 3. S3 Storage *(required based on use case)*
+
+> **Note:** S3 storage is required for demos that use S3-based model serving or store data in object storage (e.g. AutoRAG, document ingestion pipelines). If you are only serving models downloaded directly into a PVC, you can skip this step. Refer to [model storage options](model-serving/README.md#model-storage-options) for details.
+
 Update [`s3-secret.yaml`](shared/s3-secret.yaml) with your credentials:
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`

@@ -1,0 +1,45 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    modelFormat: vLLM
+    opendatahub.io/connection-path: models/granite-embedding-125m-english
+    opendatahub.io/model-type: generative
+    openshift.io/display-name: granite-embeddings
+    security.opendatahub.io/enable-auth: "false"
+    serving.kserve.io/deploymentMode: Standard
+    serving.kserve.io/stop: "false"
+  labels:
+    networking.kserve.io/visibility: exposed
+    opendatahub.io/dashboard: "true"
+  name: granite-embeddings
+spec:
+  predictor:
+    automountServiceAccountToken: false
+    deploymentStrategy:
+      type: RollingUpdate
+    maxReplicas: 1
+    minReplicas: 1
+    model:
+      args:
+      - --hf-overrides={"is_matryoshka":true,"matryoshka_dimensions":[768]}
+      - --gpu-memory-utilization=0.4
+      - --served-model-name=granite-embedding
+      - --max-model-len=512
+      - --max-num-seqs=16
+      env:
+      - name: VLLM_CPU_KVCACHE_SPACE
+        value: "8"
+      modelFormat:
+        name: vLLM
+      name: ""
+      resources:
+        limits:
+          cpu: "8"
+          memory: 16Gi
+        requests:
+          cpu: "8"
+          memory: 16Gi
+      runtime: vllm-cpu-runtime
+      storageUri: pvc://granite-embedding-125m-english-pvc/granite-embedding-125m-english
+    timeout: 600
