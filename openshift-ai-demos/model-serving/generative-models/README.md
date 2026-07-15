@@ -14,5 +14,6 @@ High-performance inference engine optimized for LLM serving.
 **Available Models:**
 - Phi 3 mini 4k instruct
 - Qwen2.5 1.5b Instruct
+- Qwen3 4B Instruct 2507
 
 [→ View vLLM deployment guide](vllm/)
