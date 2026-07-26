@@ -46,6 +46,10 @@ oc new-project <your-project> || oc project <your-project>
 oc apply -f shared/s3-secret.yaml
 ```
 
+For model-serving demos, download and upload the required model artifacts before
+applying the InferenceService manifests. See the
+[S3 model artifact workflow](model-serving/README.md#upload-model-artifacts-to-s3).
+
 ## Available Demos
 
 ### Model Serving
