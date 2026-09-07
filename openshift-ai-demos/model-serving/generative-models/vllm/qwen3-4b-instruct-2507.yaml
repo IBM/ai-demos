@@ -22,6 +22,7 @@ spec:
       - --enable-auto-tool-choice
       - --tool-call-parser=hermes
       - --gpu-memory-utilization=0.4
+      - --served-model-name=qwen3-4b
       env:
       - name: VLLM_CPU_KVCACHE_SPACE
         value: "12"

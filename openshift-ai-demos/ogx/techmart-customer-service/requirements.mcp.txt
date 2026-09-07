@@ -1,0 +1,8 @@
+# TechMart MCP Server - Requirements
+
+# MCP - Model Context Protocol
+# Pin to v1.x — mcp 2.x renamed FastMCP to MCPServer and broke the API.
+mcp>=1.28.0,<2
+
+# Database
+psycopg2-binary>=2.9.9

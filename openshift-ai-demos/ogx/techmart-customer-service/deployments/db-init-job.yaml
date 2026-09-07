@@ -1,0 +1,79 @@
+# The Job below mounts two ConfigMaps that are generated from files on disk
+# rather than checked in here, so the schema, loader, and seed data stay
+# lintable and single-sourced:
+#
+#   techmart-db-scripts  <- db-init/schema.sql, db-init/init_db.py
+#   techmart-db-data     <- data/orders.csv
+#
+# scripts/manage-resources.sh creates them automatically before applying this
+# file. To apply by hand, run the two 'oc create configmap' commands from the
+# demo README (Step 4.4) first.
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: techmart-db-init
+  labels:
+    app: techmart
+    component: db-init
+spec:
+  ttlSecondsAfterFinished: 300  # Clean up after 5 minutes
+  template:
+    metadata:
+      labels:
+        app: techmart
+        component: db-init
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: db-init
+          image: quay.io/vahirwad/techmart:db-init
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "🗄️  Creating database schema..."
+              psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f /scripts/schema.sql
+              
+              echo "📊 Loading sample data..."
+              python /scripts/init_db.py
+              
+              echo "✅ Database initialization complete!"
+          env:
+            - name: DB_HOST
+              value: "techmart-postgresql"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: techmart-db-secret
+                  key: database-name
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: techmart-db-secret
+                  key: database-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: techmart-db-secret
+                  key: database-password
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: techmart-db-secret
+                  key: database-password
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: scripts
+          configMap:
+            name: techmart-db-scripts
+        - name: data
+          configMap:
+            name: techmart-db-data

@@ -1,0 +1,11 @@
+order_id,customer_email,product_name,category,order_date,delivery_date,price,status,is_opened
+ORD-2024-001,john.doe@email.com,Laptop Pro 15,Electronics,2024-03-15,2024-03-20,1299.99,Delivered,yes
+ORD-2024-002,jane.smith@email.com,Wireless Mouse,Electronics,2024-04-01,2024-04-05,29.99,Delivered,no
+ORD-2024-003,bob.wilson@email.com,Office Chair,Furniture,2024-03-25,2024-04-02,249.99,Delivered,yes
+ORD-2024-004,alice.brown@email.com,Desk Lamp,Home & Office,2024-04-10,2024-04-15,45.99,Delivered,no
+ORD-2024-005,charlie.davis@email.com,Mechanical Keyboard,Electronics,2024-04-05,2024-04-12,89.99,Delivered,yes
+ORD-2024-006,diana.miller@email.com,Monitor 27 inch,Electronics,2024-03-20,2024-03-28,399.99,Delivered,no
+ORD-2024-007,evan.garcia@email.com,Standing Desk,Furniture,2024-04-08,2024-04-18,599.99,In Transit,no
+ORD-2024-008,fiona.martinez@email.com,Webcam HD,Electronics,2024-04-12,2024-04-19,79.99,Processing,no
+ORD-2024-009,george.lopez@email.com,Ergonomic Mouse Pad,Home & Office,2024-04-14,2024-04-20,19.99,Processing,no
+ORD-2024-010,hannah.lee@email.com,USB-C Hub,Electronics,2024-04-16,2024-04-21,49.99,Processing,no

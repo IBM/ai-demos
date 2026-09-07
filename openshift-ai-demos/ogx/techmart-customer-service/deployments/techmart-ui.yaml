@@ -1,0 +1,109 @@
+# The Secret comes first: 'oc apply -f' creates documents in file order, and
+# the Deployment's pod fails with CreateContainerConfigError until the Secret
+# it reads SECRET_KEY from exists.
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: techmart-ui-secret
+type: Opaque
+stringData:
+  # Generate a strong random value before deploying:
+  #   python -c "import secrets; print(secrets.token_hex(32))"
+  secret-key: "CHANGE_ME"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techmart-ui
+  labels:
+    app: techmart-ui
+    component: web-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: techmart-ui
+  template:
+    metadata:
+      labels:
+        app: techmart-ui
+        component: web-ui
+    spec:
+      containers:
+        - name: ui
+          image: quay.io/vahirwad/techmart:ui
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+              name: http
+          env:
+            - name: OGX_URL
+              value: "http://techmart-ogx-service.ogx-sandbox.svc.cluster.local:8321"
+            - name: MCP_SERVER_URL
+              value: "http://techmart-mcp-server.ogx-sandbox.svc.cluster.local:9001/sse"
+            - name: PORT
+              value: "8080"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: techmart-ui-secret
+                  key: secret-key
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: techmart-ui
+  labels:
+    app: techmart-ui
+    component: web-ui
+spec:
+  selector:
+    app: techmart-ui
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: http
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: techmart-ui
+  labels:
+    app: techmart-ui
+    component: web-ui
+  annotations:
+    haproxy.router.openshift.io/timeout: 600s
+spec:
+  to:
+    kind: Service
+    name: techmart-ui
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
