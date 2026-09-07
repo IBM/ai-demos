@@ -1,0 +1,19 @@
+# Containerfile for TechMart Database Initialization Job
+FROM registry.access.redhat.com/ubi9/python-312:latest
+
+LABEL name="techmart-db-init" \
+      version="1.0" \
+      description="TechMart Database Initialization Container"
+
+USER root
+
+# Install PostgreSQL client and Python dependencies
+RUN dnf install -y --nodocs postgresql && \
+    dnf clean all && \
+    pip install --no-cache-dir psycopg2-binary
+
+# Set working directory
+WORKDIR /app
+
+# Container will run scripts mounted from ConfigMaps
+CMD ["/bin/bash"]

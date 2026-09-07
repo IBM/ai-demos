@@ -1,0 +1,102 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techmart-mcp-server
+  labels:
+    app: techmart-mcp-server
+    component: mcp-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: techmart-mcp-server
+  template:
+    metadata:
+      labels:
+        app: techmart-mcp-server
+        component: mcp-server
+    spec:
+      containers:
+        - name: mcp-server
+          image: quay.io/vahirwad/techmart:mcp-server
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9001
+              protocol: TCP
+              name: sse
+          env:
+            - name: PORT
+              value: "9001"
+            - name: DB_HOST
+              value: "techmart-postgresql"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: techmart-db-secret
+                  key: database-name
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: techmart-db-secret
+                  key: database-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: techmart-db-secret
+                  key: database-password
+          readinessProbe:
+            tcpSocket:
+              port: 9001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: 9001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: techmart-mcp-server
+  labels:
+    app: techmart-mcp-server
+    component: mcp-server
+spec:
+  selector:
+    app: techmart-mcp-server
+  ports:
+    - protocol: TCP
+      port: 9001
+      targetPort: 9001
+      name: sse
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: techmart-mcp-server
+  labels:
+    app: techmart-mcp-server
+    component: mcp-server
+spec:
+  to:
+    kind: Service
+    name: techmart-mcp-server
+  port:
+    targetPort: sse
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

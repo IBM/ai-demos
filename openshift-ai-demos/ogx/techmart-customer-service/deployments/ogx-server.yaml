@@ -1,0 +1,186 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ogx-server-config
+  labels:
+    ogx.io/watch: "true"
+data:
+  config.yaml: |
+    version: 2
+    image_name: rh
+    apis:
+    - responses
+    - inference
+    - tool_runtime
+    - vector_io
+    - files
+    - file_processors
+    providers:
+      inference:
+      - provider_id: ${env.VLLM_URL:+vllm-inference}
+        provider_type: remote::vllm
+        config:
+          base_url: ${env.VLLM_URL:=}
+          max_tokens: ${env.VLLM_MAX_TOKENS:=4096}
+          api_token: ${env.VLLM_API_TOKEN:=fake}
+          tls_verify: ${env.VLLM_TLS_VERIFY:=true}
+          refresh_models: ${env.VLLM_REFRESH_MODELS:=false}
+      - provider_id: ${env.ENABLE_SENTENCE_TRANSFORMERS:+sentence-transformers}
+        provider_type: inline::sentence-transformers
+        config: {}
+      vector_io:
+      - provider_id: ${env.ENABLE_FAISS:+faiss}
+        provider_type: inline::faiss
+        config:
+          persistence:
+            backend: kv_default
+            namespace: vector_io::faiss
+      responses:
+      - provider_id: meta-reference
+        provider_type: inline::builtin
+        config:
+          persistence:
+            agent_state:
+              backend: kv_default
+              namespace: agents::meta_reference
+            responses:
+              backend: sql_default
+              table_name: agents_responses
+              max_write_queue_size: 10000
+              num_writers: 4            
+      tool_runtime:
+      - provider_id: file-search
+        provider_type: inline::file-search
+        config: {}
+      - provider_id: model-context-protocol
+        provider_type: remote::model-context-protocol
+        config: {}
+      files:
+      # Required at runtime by inline::file-search (see tool_runtime above).
+      - provider_id: meta-reference-files
+        provider_type: inline::localfs
+        config:
+          storage_dir: /opt/app-root/src/.ogx/distributions/rh/files
+          metadata_store:
+            backend: sql_default
+            table_name: files_metadata
+      file_processors:
+      - provider_id: auto
+        provider_type: inline::auto
+        config: {}
+    storage:
+      backends:
+        kv_default:
+          type: kv_postgres
+          host: ${env.POSTGRES_HOST:=localhost}
+          port: ${env.POSTGRES_PORT:=5432}
+          db: ${env.POSTGRES_DB:=ogx}
+          user: ${env.POSTGRES_USER:=ogx}
+          password: ${env.POSTGRES_PASSWORD:=ogx}
+          table_name: ${env.POSTGRES_TABLE_NAME:=ogx_kvstore}
+        sql_default:
+          type: sql_postgres
+          host: ${env.POSTGRES_HOST:=localhost}
+          port: ${env.POSTGRES_PORT:=5432}
+          db: ${env.POSTGRES_DB:=ogx}
+          user: ${env.POSTGRES_USER:=ogx}
+          password: ${env.POSTGRES_PASSWORD:=ogx}
+      stores:
+        metadata:
+          backend: kv_default
+          namespace: registry
+        inference:
+          table_name: inference_store
+          backend: sql_default
+          max_write_queue_size: 10000
+          num_writers: 4
+        conversations:
+          table_name: openai_conversations
+          backend: sql_default
+        prompts:
+          namespace: prompts
+          backend: kv_default
+        connectors:
+          table_name: connectors
+          backend: sql_default
+        vector_stores:
+          backend: sql_default
+          table_name: vector_store_metadata
+    registered_resources:
+      models:
+      - metadata:
+          embedding_dimension: ${env.EMBEDDING_DIMENSION:=768}
+        model_id: ${env.EMBEDDING_MODEL:=}
+        provider_id: ${env.EMBEDDING_PROVIDER:=vllm-embedding}
+        provider_model_id: ${env.EMBEDDING_PROVIDER_MODEL_ID:=ibm-granite/granite-embedding-125m-english}
+        model_type: embedding
+      vector_dbs: []
+      tool_groups:
+      - toolgroup_id: builtin::rag
+        provider_id: file-search
+    vector_stores:
+      annotation_prompt_params:
+        enable_annotations: true
+        annotation_instruction_template: "Cite sources immediately at the end of sentences using <|file-id|> format."
+    telemetry:
+      enabled: true
+    server:
+      port: 8321
+      registry_refresh_interval_seconds: ${env.REGISTRY_REFRESH_INTERVAL_SECONDS:=300}
+
+---
+apiVersion: ogx.io/v1beta1
+kind: OGXServer
+metadata:
+  name: techmart-ogx
+spec:
+  distribution:
+    name: rh
+  overrideConfig:
+    name: ogx-server-config
+    key: config.yaml
+  network:
+    port: 8321
+  workload:
+    overrides:
+      env:
+        # PostgreSQL metadata store (from secret)
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: POSTGRES_HOST
+        - name: POSTGRES_PORT
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: POSTGRES_PORT
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: POSTGRES_PASSWORD
+        
+        # Remote LLM configuration
+        - name: VLLM_URL
+          value: http://qwen3-4b-predictor.ogx-sandbox.svc.cluster.local:8080/v1
+        - name: VLLM_MAX_TOKENS
+          value: "1024"
+        
+        # Inline embeddings (sentence-transformers)
+        - name: ENABLE_SENTENCE_TRANSFORMERS
+          value: "sentence-transformers"
+
+        # Enable inline FAISS
+        - name: ENABLE_FAISS
+          value: "faiss"

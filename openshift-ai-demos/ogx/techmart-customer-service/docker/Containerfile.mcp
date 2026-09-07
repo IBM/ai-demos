@@ -1,0 +1,31 @@
+# Containerfile for TechMart MCP Server
+FROM registry.access.redhat.com/ubi9/python-312:latest
+
+LABEL name="techmart-mcp-server" \
+      version="1.0" \
+      description="TechMart Orders MCP Server"
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.mcp.txt .
+
+# Install dependencies from PyPI.
+# All packages including ogx-client are available on PyPI.
+# To switch to the RH index for Power/ppc64le builds, replace with:
+#   --index-url https://console.redhat.com/api/pypi/public-rhai/rhoai/3.5/cpu-ubi9/simple
+#   --extra-index-url https://pypi.org/simple
+RUN pip install --no-cache-dir -r requirements.mcp.txt
+
+# Copy application files. The server reads orders from PostgreSQL, not from
+# data/orders.csv — that file is seed data for the db-init job only.
+COPY mcp-server/server.py .
+
+# Expose MCP server port
+EXPOSE 9001
+
+# Run the MCP server with python directly — avoids the fastmcp CLI which
+# pulls in joserfc/cryptography and fails on python:3.12-slim due to an
+# OpenSSL symbol mismatch (EVP_idea_ecb, version OPENSSL_3.0.0).
+CMD ["python", "server.py"]

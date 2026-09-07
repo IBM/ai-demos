@@ -1,0 +1,42 @@
+# TechMart Customer Service UI - Containerfile
+FROM registry.access.redhat.com/ubi9/python-312:latest
+
+USER root
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.ui.txt .
+
+# ogx-client depends on pandas, which has no pre-built ppc64le wheel on PyPI.
+# Step 1: install pandas + numpy from the RH index which carries ppc64le wheels.
+# Step 2: install everything else from PyPI (ogx-client and its remaining deps
+#         will reuse the already-installed pandas rather than rebuilding it).
+RUN pip install --no-cache-dir \
+      --index-url https://console.redhat.com/api/pypi/public-rhai/rhoai/3.5/cpu-ubi9/simple \
+      pandas numpy && \
+    pip install --no-cache-dir -r requirements.ui.txt
+
+# Copy application files
+COPY app/ /app/
+
+# Create necessary directories
+RUN mkdir -p /app/templates /app/static
+
+# Set permissions
+RUN chown -R 1001:0 /app && \
+    chmod -R g=u /app
+
+# Switch to non-root user
+USER 1001
+
+# Expose port
+EXPOSE 8080
+
+# Set environment variables
+ENV FLASK_APP=app.py
+ENV PYTHONUNBUFFERED=1
+
+# Run with gunicorn — 2 workers prevent blocking on concurrent LLM requests
+CMD ["gunicorn", "--workers", "2", "--bind", "0.0.0.0:8080", "--timeout", "660", "app:app"]

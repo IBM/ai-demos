@@ -64,6 +64,13 @@ Explore Responsible AI workflows, LLM safety evaluation, and real-time guardrail
 [→ Explore TrustyAI](trustyai/)
 
 ---
+
+### OGX
+Build AI applications with model inference, RAG, tool calling, and agentic workflows through a single OpenAI-compatible API.
+
+[→ Explore OGX](ogx/)
+
+---
 ## Shared Resources
 [`shared/`](shared/) directory contains reusable cluster configuration and setup resources:
 - [`dsci.yaml`](shared/dsci.yaml) - DSCInitialization

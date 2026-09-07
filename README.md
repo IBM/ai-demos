@@ -10,6 +10,7 @@ ai-demos/
 │   └── model-serving/             
 └── openshift-ai-demos/            
    ├── model-serving/              
+   ├── ogx/                  
    └── trustyai/                   
 ```
 
