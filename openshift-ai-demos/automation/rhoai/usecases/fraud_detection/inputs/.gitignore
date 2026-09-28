@@ -1,0 +1,6 @@
+# Local, model-specific inputs — not shipped with the framework.
+# Datasets and request payloads depend on your model's I/O signature, and
+# generated artifacts are (re)created at deploy time. Provide your own; don't commit.
+*.csv
+*.json
+*_generated_request.json

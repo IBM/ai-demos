@@ -1,0 +1,55 @@
+# Fraud Detection — model deployment + TrustyAI bias monitoring configuration
+# Covers: platform setup + Triton model serving + TrustyAI + SPD fairness monitors.
+# For model deployment only (no TrustyAI) use: config-fraud-detection.yaml
+#
+# Usage:
+#   rhoai platform setup --config config-fraud-detection-trustyai.yaml
+#   rhoai usecase deploy fraud-detection --config config-fraud-detection-trustyai.yaml
+
+# Absolute path to the root of the openshift-ai-demos repository.
+repo_root: /path/to/ai-demos/openshift-ai-demos
+
+operator:
+  channel: stable-3.5
+
+# DSC components to enable during platform setup.
+# trustyai is required for bias monitoring.
+components:
+  - dashboard
+  - workbenches
+  - kserve
+  - trustyai
+
+storage:
+  class_name: ""   # empty = accept any available ReadWriteOnce class
+
+deployment:
+  namespace: test-fraud
+  trustyai_service_name:    trustyai-service
+  trustyai_service_account: trustyai-user
+
+  # Dataset mode: inference_dataset is the single source of truth.
+  models:
+    - name: upi-fraud-detection
+      model_path:  /path/to/model.onnx
+      pvc_name:    my-fraud-model-pvc   # optional; defaults to <name>-pvc
+      pvc_size:    1Gi
+      inference_dataset: /path/to/ai-demos/openshift-ai-demos/automation/rhoai/usecases/fraud_detection/inputs/training/csv/batch_01.csv
+
+      bias_monitoring:
+        # Observations are generated from inference_dataset, batched by size.
+        observations:
+          batch_size: 250   # observations per generated KServe request
+
+        # Rename opaque internal column names to human-readable labels.
+        # Inputs are auto-derived from the CSV headers.
+        # Outputs labels are derived from config.pbtxt
+
+        # SPD fairness monitors: validated immediately before scheduling.
+        spd_monitors:
+          - protected_attribute:   "Is Male"   # auto-derived from CSV header 'is_male'
+            privileged_value:      1.0
+            unprivileged_value:    0.0
+            outcome_name:          "predict"
+            favorable_outcome:     0.0
+            batch_size:            5000

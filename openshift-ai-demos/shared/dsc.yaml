@@ -1,5 +1,5 @@
 kind: DataScienceCluster
-apiVersion: datasciencecluster.opendatahub.io/v1
+apiVersion: datasciencecluster.opendatahub.io/v2
 metadata:
   labels:
     app.kubernetes.io/created-by: rhods-operator
@@ -12,7 +12,7 @@ spec:
   components:
     aipipelines: {}
     dashboard:
-      managementState: Managed
+      managementState: Removed
     feastoperator:
       managementState: Removed
     kserve:
@@ -38,7 +38,7 @@ spec:
         lmeval:
           permitCodeExecution: allow
           permitOnline: allow
-      managementState: Managed
-    workbenches:
       managementState: Removed
+    workbenches:
+      managementState: Managed
       workbenchNamespace: rhods-notebooks

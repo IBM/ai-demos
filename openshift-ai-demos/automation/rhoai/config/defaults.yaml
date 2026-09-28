@@ -1,0 +1,103 @@
+# rhoai-automation default configuration
+# All values are overridden by a user config file (--config) or CLI flags.
+# See config/loader.py for the configuration priority order.
+
+log_level: INFO
+
+platform:
+  namespace: redhat-ods-applications   # namespace where RHOAI operands run
+
+# Absolute path to the root of the openshift-ai-demos repository.
+# Used by platform/manifests.py and usecases/*/assets.py to resolve
+# manifest file paths. Set via the user config file or --config.
+repo_root: ""
+
+operator:
+  name: rhods-operator
+  namespace: redhat-ods-operator
+  channel: stable
+  source: redhat-operators
+  source_namespace: openshift-marketplace
+
+# Restrict 'rhoai platform setup' to only enable these components.
+# Empty list (default) applies the full base DSC manifest.
+components: []
+
+dsc:
+  name: default-dsc
+  dsci_name: default-dsci
+
+storage:
+  class_name: ""        # empty = accept any available RWO class
+  s3_secret_name: s3-credentials
+
+deployment:
+  namespace: ""                             # workload namespace; falls back to platform.namespace when empty
+  trustyai_service_name:    trustyai-service   # metadata.name in trustyai/service/trustyai-service.yaml
+  trustyai_service_account: trustyai-user      # ServiceAccount used to call the TrustyAI REST API
+
+  # List of models to deploy. Each entry is an independent InferenceService.
+  # For bias monitoring, supply two entries (e.g. baseline + candidate).
+  #
+  # Model source (mutually exclusive):
+  #   model_uri: reference a model already staged remotely; used as-is.
+  #     pvc://<claim>/<path>, hf://…, oci://…, or an S3 path
+  #   model_path: local artifact staged onto a PVC by the framework.
+  #     config_path (Triton config.pbtxt) is OPTIONAL for ONNX models — when
+  #     omitted, one is generated from the model's I/O signature. Generation is
+  #     tuned per-model with (both optional):
+  #       max_batch_size:   0        # 0 = shapes preserved verbatim (default);
+  #                                  #  > 0 = enable batching (needs a dynamic
+  #                                  #  leading dim on every tensor)
+  #       dynamic_batching: true     # emit a dynamic_batching {} block when batched
+  models:
+    - name: fraud-detection
+      model_uri: pvc://fraud-model-pvc/models
+      # Path to the KServe v2 inference request used for smoke-testing.
+      # Absolute path (~ is not expanded); required for deployment validation and verify.
+      # Accepts .json (KServe v2 payload) or .csv (auto-converted).
+      inference_request: ""
+      # Optional: override the tensor name and datatype used when converting
+      # CSV files.  When absent, both are read automatically from the
+      # inference_request JSON (inputs[0].name / inputs[0].datatype).
+      # Only needed when the CSV tensor metadata differs from the JSON.
+      # csv_config:
+      #   input_name: customer_data_input   # tensor name expected by the model
+      #   datatype: FP64                    # KServe v2 datatype (FP64, FP32, INT64, …)
+      # Optional: configure TrustyAI bias monitoring for this model.
+      # Omit or set to null to deploy without monitoring.
+      # bias_monitoring:
+      #   observations:             # absolute paths (~ is not expanded)
+      #     path: /abs/path/to/data/training/    # directory (*.json, lexical order) or single file
+      #     # files:                # OR explicit ordered list (mutually exclusive with path)
+      #     #   - /abs/path/to/data/training/0.json
+      #     #   - /abs/path/to/data/training/250.json
+      #   name_mapping:             # optional — rename opaque tensor columns.
+      #     # Input names are auto-derived from the CSV dataset headers when
+      #     # 'inference_dataset' is a .csv (single flat tensor → columnIndex,
+      #     # multi-tensor → identical names); set 'inputs' only to override.
+      #     inputs:
+      #       input-0: "feature name"
+      #     # Output names default to identity from the config.pbtxt output names
+      #     # (or the first inference response); set 'outputs' only to relabel.
+      #     outputs:
+      #       output-0: "outcome name"
+      #   spd_monitors:             # optional — Statistical Parity Difference
+      #     - protected_attribute:  "feature name"
+      #       privileged_value:     1.0
+      #       unprivileged_value:   0.0
+      #       outcome_name:         "outcome name"
+      #       favorable_outcome:    0.0
+      #       batch_size:           5000
+      #   identity_monitors:        # optional — track column averages over time
+      #     - column_name: "feature name"
+      #       batch_size:  250
+
+timeouts:
+  operator_ready:   300   # seconds
+  dsc_ready:        600
+  inference_ready:  120
+  trustyai_ready:   300
+  isvc_stabilize:   300   # seconds to wait for ISVC pods to re-stabilise after the logger sidecar rollout
+  ingestion_ready:  300   # seconds to wait for TrustyAI to ingest observations
+  staging_ready:    120   # seconds to wait for the model staging Pod to reach Running

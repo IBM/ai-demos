@@ -1,0 +1,23 @@
+---
+# ServiceAccount used to obtain a bearer token for TrustyAI REST API calls.
+# The token is retrieved via: oc create token <name>
+# Applied per-namespace by platform/trustyai.py: apply_service_account()
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: trustyai-user
+---
+# Grants the ServiceAccount view access so it can authenticate against
+# the TrustyAI REST API endpoints.
+# Applied per-namespace by platform/trustyai.py: apply_role_binding()
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: trustyai-user-view
+subjects:
+  - kind: ServiceAccount
+    name: trustyai-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view

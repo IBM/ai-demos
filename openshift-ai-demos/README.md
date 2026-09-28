@@ -9,6 +9,11 @@ Demonstrations for Red Hat OpenShift AI (RHOAI) showcasing model serving, LLM ev
 - Cluster admin access
 - Red Hat OpenShift AI operator installed
 
+> **Prefer a one-command setup?** The [`rhoai` automation CLI](automation/README.md)
+> installs the operator, configures the platform, and deploys entire use cases in place
+> of the manual steps below. See the
+> [automation README](automation/README.md) to get started.
+
 ### 2. Clone and Configure OpenShift AI
 ```bash
 # Clone the repository

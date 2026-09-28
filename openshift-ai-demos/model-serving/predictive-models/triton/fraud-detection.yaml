@@ -1,0 +1,35 @@
+---
+# InferenceService for the Fraud Detection ONNX model.
+# Served by the Triton ServingRuntime (triton-ppc64le-runtime).
+# TrustyAI monitors this predictor for bias and data drift.
+#
+# Model storage: PVC-backed (model pre-loaded on fraud-model-pvc).
+# Override via fraud_detection.model_uri in your config file.
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: fraud-detection
+    serving.kserve.io/deploymentMode: RawDeployment
+  labels:
+    opendatahub.io/dashboard: "true"
+    networking.kserve.io/visibility: exposed
+  name: fraud-detection
+spec:
+  predictor:
+    automountServiceAccountToken: false
+    maxReplicas: 1
+    minReplicas: 1
+    model:
+      modelFormat:
+        name: onnx
+      resources:
+        limits:
+          cpu: "2"
+          memory: 4Gi
+        requests:
+          cpu: "1"
+          memory: 2Gi
+      runtime: triton-ppc64le-runtime
+      storageUri: pvc://fraud-model-pvc/models
+    timeout: 300

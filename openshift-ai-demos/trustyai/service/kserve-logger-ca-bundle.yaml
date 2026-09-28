@@ -1,0 +1,15 @@
+---
+# ConfigMap required for TrustyAI's payload logger to trust the cluster CA.
+# The annotation instructs the OpenShift service CA operator to automatically
+# inject the cluster CA bundle into this ConfigMap's data field.
+# Applied per-namespace by platform/trustyai.py: apply_logger_ca_bundle()
+#
+# Note: data is intentionally empty — OpenShift populates it automatically
+# after the ConfigMap is created.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kserve-logger-ca-bundle
+  annotations:
+    service.beta.openshift.io/inject-cabundle: "true"
+data: {}
